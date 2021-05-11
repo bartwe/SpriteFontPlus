@@ -370,7 +370,6 @@ namespace SpriteFontPlus {
 
             var q = new FontGlyphSquad();
             float startx = 0;
-            float advance = 0;
 
             y += ascent;
 

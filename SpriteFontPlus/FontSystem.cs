@@ -1,8 +1,8 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace SpriteFontPlus {
     unsafe class FontSystem : IDisposable {
@@ -578,6 +578,34 @@ namespace SpriteFontPlus {
             q->T1 = glyph.Bounds.Bottom * _ith;
 
             x += (int)(glyph.XAdvance / 10.0f + 0.5f);
+        }
+
+        public bool TryGetMissingCharactersInString(string text, List<string> missingCharacterSets) {
+            int i = 0;
+            while (i < text.Length) {
+                var isHighSurrogate = char.IsHighSurrogate(text[i]);
+
+                int codepoint;
+                if (isHighSurrogate) {
+                    if (i == text.Length - 1)
+                        throw new Exception("Encountered high surrogate without low surrogate.");
+                    if (!char.IsSurrogatePair(text[i], text[i + 1]))
+                        throw new Exception("Encountered bad surrogate pair.");
+                    codepoint = char.ConvertToUtf32(text[i], text[i + 1]);
+                }
+                else
+                    codepoint = text[i];
+
+                var result = GetGlyphWithoutBitmap(GetGlyphsCollection(__fontSize), codepoint);
+                if (result == null) {
+                    if (isHighSurrogate)
+                        missingCharacterSets.Add(new string(new[] { text[i], text[i + 1] }));
+                    else
+                        missingCharacterSets.Add(new string(new[] { text[i] }));
+                }
+            }
+
+            return missingCharacterSets.Count != 0;
         }
     }
 }

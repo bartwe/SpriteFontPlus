@@ -1,10 +1,10 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace SpriteFontPlus {
     public class DynamicSpriteFont : IDisposable {
@@ -99,6 +99,10 @@ namespace SpriteFontPlus {
             _fontSystem.TextBounds(0, 0, text, ref bounds, fontSize);
 
             return new Vector2(bounds.X2, bounds.Y2);
+        }
+
+        public bool TryGetMissingCharactersInString(string text, List<string> missingCharacterSets) {
+            return _fontSystem.TryGetMissingCharactersInString(text, missingCharacterSets);
         }
 
         public Rectangle GetTextBounds(Vector2 position, string text, int fontSize) {

@@ -580,7 +580,7 @@ namespace SpriteFontPlus {
             x += (int)(glyph.XAdvance / 10.0f + 0.5f);
         }
 
-        public bool TryGetMissingCharactersInString(string text, List<string> missingCharacterSets) {
+        public bool TryGetMissingCharactersInString(string text, List<string> missingCharacterSets, bool includeWhitespace) {
             int i = 0;
             while (i < text.Length) {
                 var isHighSurrogate = char.IsHighSurrogate(text[i]);
@@ -599,7 +599,7 @@ namespace SpriteFontPlus {
                 var result = GetGlyphWithoutBitmap(GetGlyphsCollection(__fontSize), codepoint);
                 if (result == null) {
                     var character = text[i];
-                    if (character != '\n' && character != '\r' && !char.IsWhiteSpace(character)) {
+                    if (character != '\n' && character != '\r' && (includeWhitespace || !char.IsWhiteSpace(character))) {
                         if (isHighSurrogate)
                             missingCharacterSets.Add(new string(new[] { text[i], text[i + 1] }));
                         else

@@ -101,8 +101,8 @@ namespace SpriteFontPlus {
             return new Vector2(bounds.X2, bounds.Y2);
         }
 
-        public bool TryGetMissingCharactersInString(string text, List<string> missingCharacterSets) {
-            return _fontSystem.TryGetMissingCharactersInString(text, missingCharacterSets);
+        public bool TryGetMissingCharactersInString(string text, List<string> missingCharacterSets, bool includeWhitespace) {
+            return _fontSystem.TryGetMissingCharactersInString(text, missingCharacterSets, includeWhitespace);
         }
 
         public Rectangle GetTextBounds(Vector2 position, string text, int fontSize) {

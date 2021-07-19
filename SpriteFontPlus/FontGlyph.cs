@@ -1,7 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace SpriteFontPlus {
-    class FontGlyph {
+﻿namespace SpriteFontPlus {
+    internal class FontGlyph {
         public Font Font;
         public FontAtlas Atlas;
         public int Index;

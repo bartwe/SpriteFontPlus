@@ -1,7 +1,7 @@
 ﻿using System.IO;
 
 namespace SpriteFontPlus {
-    static class IOUtils {
+    internal static class IOUtils {
         public static byte[] ToByteArray(this Stream stream) {
             byte[] bytes;
 

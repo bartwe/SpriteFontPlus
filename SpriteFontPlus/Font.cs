@@ -2,17 +2,17 @@
 using System.Runtime.InteropServices;
 
 namespace SpriteFontPlus {
-    class Font : IDisposable {
-        readonly Int32Map<int> _kernings = new Int32Map<int>();
+    internal class Font : IDisposable {
+        private readonly Int32Map<int> _kernings = new();
 
-        float _ascentBase, _descentBase, _lineHeightBase;
+        private float _ascentBase, _descentBase, _lineHeightBase;
+
+        private IntPtr _font;
 
         public float Ascent { get; private set; }
         public float Descent { get; private set; }
         public float LineHeight { get; private set; }
         public float Scale { get; private set; }
-
-        IntPtr _font;
 
         public void Dispose() {
             if (_font != IntPtr.Zero) {
@@ -54,11 +54,13 @@ namespace SpriteFontPlus {
 
         public static unsafe Font FromMemory(byte[] data) {
             var font = new Font();
-            fixed (byte* p = data)
+            fixed (byte* p = data) {
                 font._font = NativeMethods.FontInfoAlloc(p, data.Length);
+            }
 
-            if (NativeMethods.InitFont(font._font, 0) == 0)
-                throw new Exception("stbtt_InitFont failed");
+            if (NativeMethods.InitFont(font._font, 0) == 0) {
+                throw new("stbtt_InitFont failed");
+            }
 
             int ascent, descent, lineGap;
             NativeMethods.GetFontVMetrics(font._font, &ascent, &descent, &lineGap);
@@ -71,7 +73,7 @@ namespace SpriteFontPlus {
             return font;
         }
 
-        static class NativeMethods {
+        private static class NativeMethods {
 #if !CONSOLE
             [DllImport("SpriteFontPlus.Native.dll", EntryPoint = "FontInfoAlloc", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
 #endif
@@ -79,12 +81,12 @@ namespace SpriteFontPlus {
 #if !CONSOLE
             [DllImport("SpriteFontPlus.Native.dll", EntryPoint = "FontInfoRelease", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
 #endif
-            internal static extern unsafe void FontInfoRelease(IntPtr font);
+            internal static extern void FontInfoRelease(IntPtr font);
 
 #if !CONSOLE
             [DllImport("SpriteFontPlus.Native.dll", EntryPoint = "InitFont", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
 #endif
-            internal static extern unsafe int InitFont(IntPtr font, int offset);
+            internal static extern int InitFont(IntPtr font, int offset);
 
 #if !CONSOLE
             [DllImport("SpriteFontPlus.Native.dll", EntryPoint = "GetFontVMetrics", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
@@ -109,17 +111,17 @@ namespace SpriteFontPlus {
 #if !CONSOLE
             [DllImport("SpriteFontPlus.Native.dll", EntryPoint = "FindGlyphIndex", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
 #endif
-            internal static extern unsafe int FindGlyphIndex(IntPtr font, int unicode_codepoint);
+            internal static extern int FindGlyphIndex(IntPtr font, int unicode_codepoint);
 
 #if !CONSOLE
             [DllImport("SpriteFontPlus.Native.dll", EntryPoint = "ScaleForPixelHeight", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
 #endif
-            internal static extern unsafe float ScaleForPixelHeight(IntPtr font, float pixels);
+            internal static extern float ScaleForPixelHeight(IntPtr font, float pixels);
 
 #if !CONSOLE
             [DllImport("SpriteFontPlus.Native.dll", EntryPoint = "GetGlyphKernAdvance", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
 #endif
-            internal static extern unsafe int GetGlyphKernAdvance(IntPtr font, int glyph1, int glyph2);
+            internal static extern int GetGlyphKernAdvance(IntPtr font, int glyph1, int glyph2);
         }
     }
 }

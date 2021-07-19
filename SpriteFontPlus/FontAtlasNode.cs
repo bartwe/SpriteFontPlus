@@ -2,7 +2,7 @@
 
 namespace SpriteFontPlus {
     [StructLayout(LayoutKind.Sequential)]
-    struct FontAtlasNode {
+    internal struct FontAtlasNode {
         public int X;
         public int Y;
         public int Width;

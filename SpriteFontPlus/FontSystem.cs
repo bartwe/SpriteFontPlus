@@ -9,7 +9,7 @@ namespace SpriteFontPlus {
         private readonly List<Font> _fonts = new();
         private float _ith;
         private float _itw;
-        private FontAtlas _currentAtlas;
+        private FontAtlas? _currentAtlas;
         private Point _size;
         private int _fontSize;
 
@@ -21,6 +21,7 @@ namespace SpriteFontPlus {
         public int? DefaultCharacter = ' ';
 
         public FontSystem(int width, int height, int blurAmount = 0, int strokeAmount = 0) {
+            CurrentAtlasFull = null!;
             if (width <= 0) {
                 throw new ArgumentOutOfRangeException(nameof(width));
             }
@@ -130,7 +131,7 @@ namespace SpriteFontPlus {
 
             originY += ascent;
 
-            FontGlyph prevGlyph = null;
+            FontGlyph? prevGlyph = null;
             for (var i = 0; i < str.Length; i += StringBuilderIsSurrogatePair(str, i) ? 2 : 1) {
                 var codepoint = StringBuilderConvertToUtf32(str, i);
 
@@ -157,7 +158,7 @@ namespace SpriteFontPlus {
 
                 var sourceRect = new Rectangle((int)(q.S0 * _size.X), (int)(q.T0 * _size.Y), (int)((q.S1 - q.S0) * _size.X), (int)((q.T1 - q.T0) * _size.Y));
 
-                batch.Draw(glyph.Atlas.Texture, destRect, sourceRect, color, depth);
+                batch.Draw(glyph.Atlas!.Texture!, destRect, sourceRect, color, depth);
 
                 prevGlyph = glyph;
             }
@@ -202,7 +203,7 @@ namespace SpriteFontPlus {
 
             originY += ascent;
 
-            FontGlyph prevGlyph = null;
+            FontGlyph? prevGlyph = null;
             for (var i = 0; i < str.Length; i += char.IsSurrogatePair(str, i) ? 2 : 1) {
                 var codepoint = char.ConvertToUtf32(str, i);
 
@@ -229,7 +230,7 @@ namespace SpriteFontPlus {
 
                 var sourceRect = new Rectangle((int)(q.S0 * _size.X), (int)(q.T0 * _size.Y), (int)((q.S1 - q.S0) * _size.X), (int)((q.T1 - q.T0) * _size.Y));
 
-                batch.Draw(glyph.Atlas.Texture, destRect, sourceRect, color, depth);
+                batch.Draw(glyph.Atlas!.Texture!, destRect, sourceRect, color, depth);
 
                 prevGlyph = glyph;
             }
@@ -277,7 +278,7 @@ namespace SpriteFontPlus {
             miny = maxy = y;
             startx = x;
 
-            FontGlyph prevGlyph = null;
+            FontGlyph? prevGlyph = null;
 
             for (var i = 0; i < str.Length; i += char.IsSurrogatePair(str, i) ? 2 : 1) {
                 var codepoint = char.ConvertToUtf32(str, i);
@@ -359,7 +360,7 @@ namespace SpriteFontPlus {
             miny = maxy = y;
             startx = x;
 
-            FontGlyph prevGlyph = null;
+            FontGlyph? prevGlyph = null;
 
             for (var i = 0; i < str.Length; i += StringBuilderIsSurrogatePair(str, i) ? 2 : 1) {
                 var codepoint = StringBuilderConvertToUtf32(str, i);
@@ -451,7 +452,7 @@ namespace SpriteFontPlus {
             Reset(_size.X, _size.Y);
         }
 
-        private int GetCodepointIndex(int codepoint, out Font font) {
+        private int GetCodepointIndex(int codepoint, out Font? font) {
             font = null;
 
             var g = 0;
@@ -466,13 +467,13 @@ namespace SpriteFontPlus {
             return g;
         }
 
-        private FontGlyph GetGlyphWithoutBitmap(GlyphCollection collection, int codepoint) {
-            FontGlyph glyph = null;
+        private FontGlyph? GetGlyphWithoutBitmap(GlyphCollection collection, int codepoint) {
+            FontGlyph? glyph = null;
             if (collection.Glyphs.TryGetValue(codepoint, out glyph)) {
                 return glyph;
             }
 
-            Font font;
+            Font? font;
             var g = GetCodepointIndex(codepoint, out font);
             if (g == 0) {
                 collection.Glyphs[codepoint] = null;
@@ -480,28 +481,21 @@ namespace SpriteFontPlus {
             }
 
             int advance, lsb, x0, y0, x1, y1;
-            font.BuildGlyphBitmap(g, font.Scale, &advance, &lsb, &x0, &y0, &x1, &y1);
+            font!.BuildGlyphBitmap(g, font.Scale, &advance, &lsb, &x0, &y0, &x1, &y1);
 
             var pad = Math.Max(FontGlyph.PadFromBlur(BlurAmount), FontGlyph.PadFromBlur(StrokeAmount));
             var gw = x1 - x0 + (pad * 2);
             var gh = y1 - y0 + (pad * 2);
             var offset = FontGlyph.PadFromBlur(BlurAmount);
 
-            glyph = new() {
-                Font = font,
-                Index = g,
-                Bounds = new(0, 0, gw, gh),
-                XAdvance = (int)(font.Scale * advance * 10.0f),
-                XOffset = x0 - offset,
-                YOffset = y0 - offset,
-            };
+            glyph = new(font, g, new(0, 0, gw, gh), (int)(font.Scale * advance * 10.0f), x0 - offset, y0 - offset);
 
             collection.Glyphs[codepoint] = glyph;
 
             return glyph;
         }
 
-        private FontGlyph GetGlyphInternal(GlyphCollection glyphs, int codepoint) {
+        private FontGlyph? GetGlyphInternal(GlyphCollection glyphs, int codepoint) {
             var glyph = GetGlyphWithoutBitmap(glyphs, codepoint);
             if (glyph == null) {
                 return null;
@@ -538,7 +532,7 @@ namespace SpriteFontPlus {
             return glyph;
         }
 
-        private FontGlyph GetGlyph(GlyphCollection glyphs, int codepoint) {
+        private FontGlyph? GetGlyph(GlyphCollection glyphs, int codepoint) {
             var result = GetGlyphInternal(glyphs, codepoint);
             if (result == null && DefaultCharacter != null) {
                 result = GetGlyphInternal(glyphs, DefaultCharacter.Value);
@@ -547,7 +541,7 @@ namespace SpriteFontPlus {
             return result;
         }
 
-        private void GetQuad(FontGlyph glyph, FontGlyph prevGlyph, GlyphCollection collection, float spacing, ref float x, ref float y, FontGlyphSquad* q) {
+        private void GetQuad(FontGlyph glyph, FontGlyph? prevGlyph, GlyphCollection collection, float spacing, ref float x, ref float y, FontGlyphSquad* q) {
             if (prevGlyph != null) {
                 float adv = 0;
                 if (UseKernings && glyph.Font == prevGlyph.Font) {
@@ -612,7 +606,7 @@ namespace SpriteFontPlus {
         }
 
         private class GlyphCollection {
-            internal readonly Int32Map<FontGlyph> Glyphs = new();
+            internal readonly Int32Map<FontGlyph?> Glyphs = new();
         }
     }
 }

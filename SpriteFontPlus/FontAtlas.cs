@@ -2,8 +2,8 @@
 
 namespace SpriteFontPlus {
     internal unsafe class FontAtlas {
-        private byte[] _byteBuffer;
-        private Color[] _colorBuffer;
+        private byte[]? _byteBuffer;
+        private Color[]? _colorBuffer;
 
         public FontAtlas(int w, int h, int count) {
             Width = w;
@@ -23,7 +23,7 @@ namespace SpriteFontPlus {
 
         public FontAtlasNode[] Nodes { get; private set; }
 
-        public FontTexture Texture { get; set; }
+        public FontTexture? Texture { get; set; }
 
         public void InsertNode(int idx, int x, int y, int w) {
             if (NodesNumber + 1 > Nodes.Length) {

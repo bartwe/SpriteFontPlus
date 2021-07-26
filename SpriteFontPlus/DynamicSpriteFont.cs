@@ -115,7 +115,7 @@ namespace SpriteFontPlus {
 
             public IEnumerator<FontTexture> GetEnumerator() {
                 foreach (var atlas in _font.Atlases) {
-                    yield return atlas.Texture;
+                    yield return atlas.Texture!;
                 }
             }
 

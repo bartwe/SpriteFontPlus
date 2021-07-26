@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace SpriteFontPlus {
     public class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
-        private int[] _buckets;
-        private Entry[] _entries;
+        private int[]? _buckets;
+        private Entry[]? _entries;
         private int _count;
         private int _version;
         private int _freeList;
@@ -28,15 +28,17 @@ namespace SpriteFontPlus {
             get {
                 unchecked {
                     if (_buckets != null) {
+                        var buckets = _buckets!;
+                        var entries = _entries!;
                         var num = key & int.MaxValue;
-                        for (var index = _buckets[num % _buckets.Length]; index >= 0; index = _entries[index].Next) {
-                            if (_entries[index].Key == key) {
-                                return _entries[index].Value;
+                        for (var index = buckets[num % buckets.Length]; index >= 0; index = entries[index].Next) {
+                            if (entries[index].Key == key) {
+                                return entries[index].Value;
                             }
                         }
                     }
                     ThrowHelper.KeyNotFoundException();
-                    return default;
+                    return default!;
                 }
             }
             set => Insert(key, value, false);
@@ -58,10 +60,12 @@ namespace SpriteFontPlus {
             if (_count <= 0) {
                 return;
             }
-            for (var index = 0; index < _buckets.Length; ++index) {
-                _buckets[index] = -1;
+            var buckets = _buckets!;
+            var entries = _entries!;
+            for (var index = 0; index < buckets.Length; ++index) {
+                buckets[index] = -1;
             }
-            Array.Clear(_entries, 0, _count);
+            Array.Clear(entries, 0, _count);
             _freeList = -1;
             _count = 0;
             _freeCount = 0;
@@ -75,9 +79,11 @@ namespace SpriteFontPlus {
         private int FindEntry(int key) {
             unchecked {
                 if (_buckets != null) {
+                    var buckets = _buckets!;
+                    var entries = _entries!;
                     var num = key & int.MaxValue;
-                    for (var index = _buckets[num % _buckets.Length]; index >= 0; index = _entries[index].Next) {
-                        if (_entries[index].Key == key) {
+                    for (var index = buckets[num % buckets.Length]; index >= 0; index = entries[index].Next) {
+                        if (entries[index].Key == key) {
                             return index;
                         }
                     }
@@ -101,15 +107,17 @@ namespace SpriteFontPlus {
                 if (_buckets == null) {
                     Initialize(0);
                 }
+                var buckets = _buckets!;
+                var entries = _entries!;
                 var num1 = key & int.MaxValue;
-                var index1 = num1 % _buckets.Length;
+                var index1 = num1 % buckets.Length;
                 var num2 = 0;
-                for (var index2 = _buckets[index1]; index2 >= 0; index2 = _entries[index2].Next) {
-                    if (_entries[index2].Key == key) {
+                for (var index2 = buckets[index1]; index2 >= 0; index2 = entries[index2].Next) {
+                    if (entries[index2].Key == key) {
                         if (add) {
                             ThrowHelper.ArgumentException();
                         }
-                        _entries[index2].Value = value;
+                        entries[index2].Value = value;
                         _version = _version + 1;
                         return;
                     }
@@ -118,27 +126,29 @@ namespace SpriteFontPlus {
                 int index3;
                 if (_freeCount > 0) {
                     index3 = _freeList;
-                    _freeList = _entries[index3].Next;
+                    _freeList = entries[index3].Next;
                     _freeCount = _freeCount - 1;
                 }
                 else {
-                    if (_count == _entries.Length) {
+                    if (_count == entries.Length) {
                         Resize();
-                        index1 = num1 % _buckets.Length;
+                        buckets = _buckets!;
+                        entries = _entries!;
+                        index1 = num1 % buckets.Length;
                     }
                     index3 = _count;
                     _count = _count + 1;
                 }
-                _entries[index3].HashCode = num1;
-                _entries[index3].Next = _buckets[index1];
-                _entries[index3].Key = key;
-                _entries[index3].Value = value;
-                _buckets[index1] = index3;
+                entries[index3].HashCode = num1;
+                entries[index3].Next = buckets[index1];
+                entries[index3].Key = key;
+                entries[index3].Value = value;
+                buckets[index1] = index3;
                 _version = _version + 1;
                 if (num2 <= 100) {
                     return;
                 }
-                Resize(_entries.Length + (_entries.Length / 4) + 1);
+                Resize(entries.Length + (entries.Length / 4) + 1);
             }
         }
 
@@ -152,7 +162,9 @@ namespace SpriteFontPlus {
                 numArray[index] = -1;
             }
             var entryArray = new Entry[newSize];
-            Array.Copy(_entries, 0, entryArray, 0, _count);
+            if (_count > 0) {
+                Array.Copy(_entries!, 0, entryArray!, 0, _count);
+            }
             for (var index1 = 0; index1 < _count; ++index1) {
                 if (entryArray[index1].HashCode >= 0) {
                     var index2 = entryArray[index1].HashCode % newSize;
@@ -167,21 +179,23 @@ namespace SpriteFontPlus {
         public bool Remove(int key) {
             unchecked {
                 if (_buckets != null) {
+                    var buckets = _buckets!;
+                    var entries = _entries!;
                     var num = key & int.MaxValue;
-                    var index1 = num % _buckets.Length;
+                    var index1 = num % buckets.Length;
                     var index2 = -1;
-                    for (var index3 = _buckets[index1]; index3 >= 0; index3 = _entries[index3].Next) {
-                        if (_entries[index3].Key == key) {
+                    for (var index3 = buckets[index1]; index3 >= 0; index3 = entries[index3].Next) {
+                        if (entries[index3].Key == key) {
                             if (index2 < 0) {
-                                _buckets[index1] = _entries[index3].Next;
+                                buckets[index1] = entries[index3].Next;
                             }
                             else {
-                                _entries[index2].Next = _entries[index3].Next;
+                                entries[index2].Next = entries[index3].Next;
                             }
-                            _entries[index3].HashCode = -1;
-                            _entries[index3].Next = _freeList;
-                            _entries[index3].Key = default;
-                            _entries[index3].Value = default;
+                            entries[index3].HashCode = -1;
+                            entries[index3].Next = _freeList;
+                            entries[index3].Key = default;
+                            entries[index3].Value = default!;
                             _freeList = index3;
                             _freeCount = _freeCount + 1;
                             _version = _version + 1;
@@ -197,15 +211,17 @@ namespace SpriteFontPlus {
         public bool TryGetValue(int key, out TValue value) {
             unchecked {
                 if (_buckets != null) {
+                    var buckets = _buckets!;
+                    var entries = _entries!;
                     var num = key & int.MaxValue;
-                    for (var index = _buckets[num % _buckets.Length]; index >= 0; index = _entries[index].Next) {
-                        if (_entries[index].Key == key) {
-                            value = _entries[index].Value;
+                    for (var index = buckets[num % buckets.Length]; index >= 0; index = entries[index].Next) {
+                        if (entries[index].Key == key) {
+                            value = entries[index].Value;
                             return true;
                         }
                     }
                 }
-                value = default;
+                value = default!;
                 return false;
             }
         }
@@ -245,9 +261,10 @@ namespace SpriteFontPlus {
                 if (_version != _parent._version) {
                     ThrowHelper.InvalidOperationException();
                 }
+                var entries = _parent._entries!;
                 for (; (uint)_index < (uint)_parent._count; _index = _index + 1) {
-                    if (_parent._entries[_index].HashCode >= 0) {
-                        Current = new(_parent._entries[_index].Key, _parent._entries[_index].Value);
+                    if (entries[_index].HashCode >= 0) {
+                        Current = new(entries[_index].Key, entries[_index].Value);
                         _index = _index + 1;
                         return true;
                     }

@@ -2,7 +2,14 @@
 #include "./Shared.hpp"
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
+#pragma warning(push)
+#pragma warning(disable: 4100) //Unreferenced formal parameter
+#pragma warning(disable: 4244) //Conversion, possible loss of data
+#pragma warning(disable: 4512) //Assignment operator could not be generated
+#pragma warning(disable: 4127) //Conditional expression is constant
+#pragma warning(disable: 4505) 
 #include "./stb_truetype.h"
+#pragma warning(pop)
 
 BW_EXTERN_C
 

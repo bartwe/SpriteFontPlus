@@ -3,3 +3,5 @@ rm libNexelNative.so
 gcc -std=c++11 -c -fPIC -O2 LinuxSpriteFontPlusNative.cpp -o LinuxSpriteFontPlusNative.o
 gcc -O2 LinuxSpriteFontPlusNative.o -o libSpriteFontPlusNative.so -shared
 rm LinuxSpriteFontPlusNative.o
+mkdir ./x64/Linux
+mv ./libSpriteFontPlusNative.so ./x64/Linux/libSpriteFontPlusNative.so

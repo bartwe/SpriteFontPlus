@@ -1,9 +1,9 @@
 ﻿using System;
 
 namespace SpriteFontPlus {
-    internal unsafe sealed class FontAtlas {
-        private byte[]? _byteBuffer;
-        private Color[]? _colorBuffer;
+    sealed unsafe class FontAtlas {
+        byte[]? _byteBuffer;
+        Color[]? _colorBuffer;
 
         public FontAtlas(int w, int h, int count) {
             Width = w;
@@ -26,7 +26,7 @@ namespace SpriteFontPlus {
         public FontTexture? Texture { get; set; }
 
         public void InsertNode(int idx, int x, int y, int w) {
-            if (NodesNumber + 1 > Nodes.Length) {
+            if ((NodesNumber + 1) > Nodes.Length) {
                 var oldNodes = Nodes;
                 var newLength = Nodes.Length == 0 ? 8 : Nodes.Length * 2;
                 Nodes = new FontAtlasNode[newLength];
@@ -48,7 +48,7 @@ namespace SpriteFontPlus {
             if (NodesNumber == 0) {
                 return;
             }
-            for (var i = idx; i < NodesNumber - 1; i++) {
+            for (var i = idx; i < (NodesNumber - 1); i++) {
                 Nodes[i] = Nodes[i + 1];
             }
             NodesNumber--;
@@ -67,8 +67,8 @@ namespace SpriteFontPlus {
         public bool AddSkylineLevel(int idx, int x, int y, int w, int h) {
             InsertNode(idx, x, y + h, w);
             for (var i = idx + 1; i < NodesNumber; i++) {
-                if (Nodes[i].X < Nodes[i - 1].X + Nodes[i - 1].Width) {
-                    var shrink = Nodes[i - 1].X + Nodes[i - 1].Width - Nodes[i].X;
+                if (Nodes[i].X < (Nodes[i - 1].X + Nodes[i - 1].Width)) {
+                    var shrink = (Nodes[i - 1].X + Nodes[i - 1].Width) - Nodes[i].X;
                     Nodes[i].X += shrink;
                     Nodes[i].Width -= shrink;
                     if (Nodes[i].Width <= 0) {
@@ -84,7 +84,7 @@ namespace SpriteFontPlus {
                 }
             }
 
-            for (var i = 0; i < NodesNumber - 1; i++) {
+            for (var i = 0; i < (NodesNumber - 1); i++) {
                 if (Nodes[i].Y == Nodes[i + 1].Y) {
                     Nodes[i].Width += Nodes[i + 1].Width;
                     RemoveNode(i + 1);
@@ -98,7 +98,7 @@ namespace SpriteFontPlus {
         public int RectFits(int i, int w, int h) {
             var x = Nodes[i].X;
             var y = Nodes[i].Y;
-            if (x + w > Width) {
+            if ((x + w) > Width) {
                 return -1;
             }
             var spaceLeft = w;
@@ -107,7 +107,7 @@ namespace SpriteFontPlus {
                     return -1;
                 }
                 y = Math.Max(y, Nodes[i].Y);
-                if (y + h > Height) {
+                if ((y + h) > Height) {
                     return -1;
                 }
                 spaceLeft -= Nodes[i].Width;
@@ -126,7 +126,7 @@ namespace SpriteFontPlus {
             for (var i = 0; i < NodesNumber; i++) {
                 var y = RectFits(i, rw, rh);
                 if (y != -1) {
-                    if (y + rh < besth || (y + rh == besth && Nodes[i].Width < bestw)) {
+                    if (((y + rh) < besth) || (((y + rh) == besth) && (Nodes[i].Width < bestw))) {
                         besti = i;
                         bestw = Nodes[i].Width;
                         besth = y + rh;
@@ -155,7 +155,7 @@ namespace SpriteFontPlus {
             var bufferSize = glyph.Bounds.Width * glyph.Bounds.Height;
             var buffer = _byteBuffer;
 
-            if (buffer == null || buffer.Length < bufferSize) {
+            if ((buffer == null) || (buffer.Length < bufferSize)) {
                 buffer = new byte[bufferSize];
                 _byteBuffer = buffer;
             }
@@ -164,7 +164,7 @@ namespace SpriteFontPlus {
             var g = glyph.Index;
             var colorSize = glyph.Bounds.Width * glyph.Bounds.Height;
             var colorBuffer = _colorBuffer;
-            if (colorBuffer == null || colorBuffer.Length < colorSize) {
+            if ((colorBuffer == null) || (colorBuffer.Length < colorSize)) {
                 colorBuffer = new Color[colorSize];
                 _colorBuffer = colorBuffer;
             }
@@ -196,11 +196,11 @@ namespace SpriteFontPlus {
                         d = buffer[i + top];
                         black = (((255 - d) * black) + (255 * d)) / 255;
                     }
-                    if (i % width >= left) {
+                    if ((i % width) >= left) {
                         d = buffer[i - strokeAmount];
                         black = (((255 - d) * black) + (255 * d)) / 255;
                     }
-                    if (i % width < right) {
+                    if ((i % width) < right) {
                         d = buffer[i + strokeAmount];
                         black = (((255 - d) * black) + (255 * d)) / 255;
                     }
@@ -224,8 +224,10 @@ namespace SpriteFontPlus {
 
 #if PREMULTIPLIEDALPHA
                         var alpha = ((255 - col) * black + 255 * col) / 255;
-                        colorBuffer[i].R = colorBuffer[i].G = colorBuffer[i].B = (byte)((alpha * col) / 255);
-                        colorBuffer[i].A = (byte)alpha;
+                        colorBuffer[i].R
+ = colorBuffer[i].G = colorBuffer[i].B = (byte)((alpha * col) / 255);
+                        colorBuffer[i].A
+ = (byte)alpha;
 #else
                         var a = (byte)((((255 - col) * black) + (255 * col)) / 255);
                         colorBuffer[i].PackedValue = ((uint)a << 24) | ((uint)col << 16) | ((uint)col << 8) | col;
@@ -257,7 +259,7 @@ namespace SpriteFontPlus {
             Texture.SetData(colorBuffer);
         }
 
-        private void Blur(byte* dst, int w, int h, int dstStride, int blur) {
+        void Blur(byte* dst, int w, int h, int dstStride, int blur) {
             int alpha;
             float sigma;
             if (blur < 1) {
@@ -271,7 +273,7 @@ namespace SpriteFontPlus {
             BlurCols(dst, w, h, dstStride, alpha);
         }
 
-        private static void BlurCols(byte* dst, int w, int h, int dstStride, int alpha) {
+        static void BlurCols(byte* dst, int w, int h, int dstStride, int alpha) {
             int x;
             int y;
             for (y = 0; y < h; y++) {
@@ -293,12 +295,12 @@ namespace SpriteFontPlus {
             }
         }
 
-        private static void BlurRows(byte* dst, int w, int h, int dstStride, int alpha) {
+        static void BlurRows(byte* dst, int w, int h, int dstStride, int alpha) {
             int x;
             int y;
             for (x = 0; x < w; x++) {
                 var z = 0;
-                for (y = dstStride; y < h * dstStride; y += dstStride) {
+                for (y = dstStride; y < (h * dstStride); y += dstStride) {
                     z += (alpha * ((dst[y] << 7) - z)) >> 16;
                     dst[y] = (byte)(z >> 7);
                 }

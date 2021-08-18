@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace SpriteFontPlus {
-    internal sealed class ThrowHelper {
+    sealed class ThrowHelper {
         public static void KeyNotFoundException() {
             throw new KeyNotFoundException();
         }

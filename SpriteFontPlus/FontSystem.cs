@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SpriteFontPlus {
-    internal unsafe sealed class FontSystem : IDisposable {
-        private readonly Int32Map<GlyphCollection> _glyphs = new();
+    sealed unsafe class FontSystem : IDisposable {
+        readonly Int32Map<GlyphCollection> _glyphs = new();
 
-        private readonly List<Font> _fonts = new();
-        private float _ith;
-        private float _itw;
-        private FontAtlas? _currentAtlas;
-        private Point _size;
-        private int _fontSize;
+        readonly List<Font> _fonts = new();
+        float _ith;
+        float _itw;
+        FontAtlas? _currentAtlas;
+        Point _size;
+        int _fontSize;
 
         public readonly int BlurAmount;
         public readonly int StrokeAmount;
@@ -30,15 +30,15 @@ namespace SpriteFontPlus {
                 throw new ArgumentOutOfRangeException(nameof(height));
             }
 
-            if (blurAmount < 0 || blurAmount > 20) {
+            if ((blurAmount < 0) || (blurAmount > 20)) {
                 throw new ArgumentOutOfRangeException(nameof(blurAmount));
             }
 
-            if (strokeAmount < 0 || strokeAmount > 20) {
+            if ((strokeAmount < 0) || (strokeAmount > 20)) {
                 throw new ArgumentOutOfRangeException(nameof(strokeAmount));
             }
 
-            if (strokeAmount != 0 && blurAmount != 0) {
+            if ((strokeAmount != 0) && (blurAmount != 0)) {
                 throw new ArgumentException("Cannot have both blur and stroke.");
             }
 
@@ -84,7 +84,7 @@ namespace SpriteFontPlus {
             _fonts.Add(font);
         }
 
-        private GlyphCollection GetGlyphsCollection(int size) {
+        GlyphCollection GetGlyphsCollection(int size) {
             GlyphCollection result;
             if (_glyphs.TryGetValue(size, out result)) {
                 return result;
@@ -321,7 +321,7 @@ namespace SpriteFontPlus {
         }
 
         public void TextBounds(float x, float y, StringBuilder str, ref Bounds bounds, int fontSize) {
-            if (str == null || str.Length <= 0) {
+            if ((str == null) || (str.Length <= 0)) {
                 return;
             }
 
@@ -402,24 +402,24 @@ namespace SpriteFontPlus {
             bounds.Y2 = maxy;
         }
 
-        private bool StringBuilderIsSurrogatePair(StringBuilder sb, int index) {
+        bool StringBuilderIsSurrogatePair(StringBuilder sb, int index) {
             if (sb == null) {
                 throw new ArgumentNullException(nameof(sb));
             }
-            if (index < 0 || index > sb.Length) {
+            if ((index < 0) || (index > sb.Length)) {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
-            if (index + 1 < sb.Length) {
+            if ((index + 1) < sb.Length) {
                 return char.IsSurrogatePair(sb[index], sb[index + 1]);
             }
             return false;
         }
 
-        private int StringBuilderConvertToUtf32(StringBuilder sb, int index) {
+        int StringBuilderConvertToUtf32(StringBuilder sb, int index) {
             if (sb == null) {
                 throw new ArgumentNullException(nameof(sb));
             }
-            if (index < 0 || index > sb.Length) {
+            if ((index < 0) || (index > sb.Length)) {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
@@ -427,7 +427,7 @@ namespace SpriteFontPlus {
                 return sb[index];
             }
 
-            if (index >= sb.Length - 1) {
+            if (index >= (sb.Length - 1)) {
                 throw new("Invalid High Surrogate.");
             }
 
@@ -439,7 +439,7 @@ namespace SpriteFontPlus {
 
             _glyphs.Clear();
 
-            if (width == _size.X && height == _size.Y) {
+            if ((width == _size.X) && (height == _size.Y)) {
                 return;
             }
 
@@ -452,7 +452,7 @@ namespace SpriteFontPlus {
             Reset(_size.X, _size.Y);
         }
 
-        private int GetCodepointIndex(int codepoint, out Font? font) {
+        int GetCodepointIndex(int codepoint, out Font? font) {
             font = null;
 
             var g = 0;
@@ -467,7 +467,7 @@ namespace SpriteFontPlus {
             return g;
         }
 
-        private FontGlyph? GetGlyphWithoutBitmap(GlyphCollection collection, int codepoint) {
+        FontGlyph? GetGlyphWithoutBitmap(GlyphCollection collection, int codepoint) {
             FontGlyph? glyph = null;
             if (collection.Glyphs.TryGetValue(codepoint, out glyph)) {
                 return glyph;
@@ -484,8 +484,8 @@ namespace SpriteFontPlus {
             font!.BuildGlyphBitmap(g, font.Scale, &advance, &lsb, &x0, &y0, &x1, &y1);
 
             var pad = Math.Max(FontGlyph.PadFromBlur(BlurAmount), FontGlyph.PadFromBlur(StrokeAmount));
-            var gw = x1 - x0 + (pad * 2);
-            var gh = y1 - y0 + (pad * 2);
+            var gw = (x1 - x0) + (pad * 2);
+            var gh = (y1 - y0) + (pad * 2);
             var offset = FontGlyph.PadFromBlur(BlurAmount);
 
             glyph = new(font, g, new(0, 0, gw, gh), (int)(font.Scale * advance * 10.0f), x0 - offset, y0 - offset);
@@ -495,7 +495,7 @@ namespace SpriteFontPlus {
             return glyph;
         }
 
-        private FontGlyph? GetGlyphInternal(GlyphCollection glyphs, int codepoint) {
+        FontGlyph? GetGlyphInternal(GlyphCollection glyphs, int codepoint) {
             var glyph = GetGlyphWithoutBitmap(glyphs, codepoint);
             if (glyph == null) {
                 return null;
@@ -532,19 +532,19 @@ namespace SpriteFontPlus {
             return glyph;
         }
 
-        private FontGlyph? GetGlyph(GlyphCollection glyphs, int codepoint) {
+        FontGlyph? GetGlyph(GlyphCollection glyphs, int codepoint) {
             var result = GetGlyphInternal(glyphs, codepoint);
-            if (result == null && DefaultCharacter != null) {
+            if ((result == null) && (DefaultCharacter != null)) {
                 result = GetGlyphInternal(glyphs, DefaultCharacter.Value);
             }
 
             return result;
         }
 
-        private void GetQuad(FontGlyph glyph, FontGlyph? prevGlyph, GlyphCollection collection, float spacing, ref float x, ref float y, FontGlyphSquad* q) {
+        void GetQuad(FontGlyph glyph, FontGlyph? prevGlyph, GlyphCollection collection, float spacing, ref float x, ref float y, FontGlyphSquad* q) {
             if (prevGlyph != null) {
                 float adv = 0;
-                if (UseKernings && glyph.Font == prevGlyph.Font) {
+                if (UseKernings && (glyph.Font == prevGlyph.Font)) {
                     adv = prevGlyph.Font.GetGlyphKernAdvance(prevGlyph.Index, glyph.Index) * glyph.Font.Scale;
                 }
 
@@ -575,7 +575,7 @@ namespace SpriteFontPlus {
 
                 int codepoint;
                 if (isHighSurrogate) {
-                    if (i == text.Length - 1) {
+                    if (i == (text.Length - 1)) {
                         throw new("Encountered high surrogate without low surrogate.");
                     }
                     if (!char.IsSurrogatePair(text[i], text[i + 1])) {
@@ -590,7 +590,7 @@ namespace SpriteFontPlus {
                 var result = GetGlyphWithoutBitmap(GetGlyphsCollection(_fontSize), codepoint);
                 if (result == null) {
                     var character = text[i];
-                    if (character != '\n' && character != '\r' && (includeWhitespace || !char.IsWhiteSpace(character))) {
+                    if ((character != '\n') && (character != '\r') && (includeWhitespace || !char.IsWhiteSpace(character))) {
                         if (isHighSurrogate) {
                             missingCharacterSets.Add(new(new[] { text[i], text[i + 1] }));
                         }

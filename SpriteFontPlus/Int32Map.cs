@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 namespace SpriteFontPlus {
     public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
-        private int[]? _buckets;
-        private Entry[]? _entries;
-        private int _count;
-        private int _version;
-        private int _freeList;
-        private int _freeCount;
+        int[]? _buckets;
+        Entry[]? _entries;
+        int _count;
+        int _version;
+        int _freeList;
+        int _freeCount;
 
         public Int32Map() : this(0) { }
 
@@ -22,7 +22,9 @@ namespace SpriteFontPlus {
             }
         }
 
-        public int Count => _count - _freeCount;
+        public int Count {
+            get { return _count - _freeCount; }
+        }
 
         public TValue this[int key] {
             get {
@@ -41,7 +43,7 @@ namespace SpriteFontPlus {
                     return default!;
                 }
             }
-            set => Insert(key, value, false);
+            set { Insert(key, value, false); }
         }
 
         IEnumerator<KeyValuePair<int, TValue>> IEnumerable<KeyValuePair<int, TValue>>.GetEnumerator() {
@@ -76,7 +78,7 @@ namespace SpriteFontPlus {
             return FindEntry(key) >= 0;
         }
 
-        private int FindEntry(int key) {
+        int FindEntry(int key) {
             unchecked {
                 if (_buckets != null) {
                     var buckets = _buckets!;
@@ -92,7 +94,7 @@ namespace SpriteFontPlus {
             }
         }
 
-        private void Initialize(int capacity) {
+        void Initialize(int capacity) {
             var prime = SizingHelper.GetSizingPrime(capacity);
             _buckets = new int[prime];
             for (var index = 0; index < _buckets.Length; ++index) {
@@ -102,7 +104,7 @@ namespace SpriteFontPlus {
             _freeList = -1;
         }
 
-        private void Insert(int key, TValue value, bool add) {
+        void Insert(int key, TValue value, bool add) {
             unchecked {
                 if (_buckets == null) {
                     Initialize(0);
@@ -152,11 +154,11 @@ namespace SpriteFontPlus {
             }
         }
 
-        private void Resize() {
+        void Resize() {
             Resize(SizingHelper.NextSizingPrime(_count));
         }
 
-        private void Resize(int newSize) {
+        void Resize(int newSize) {
             var numArray = new int[newSize];
             for (var index = 0; index < numArray.Length; ++index) {
                 numArray[index] = -1;
@@ -230,7 +232,7 @@ namespace SpriteFontPlus {
             return new(this);
         }
 
-        private struct Entry {
+        struct Entry {
             public int HashCode;
             public int Next;
             public int Key;
@@ -238,15 +240,17 @@ namespace SpriteFontPlus {
         }
 
         public struct Enumerator : IEnumerator<KeyValuePair<int, TValue>> {
-            private readonly Int32Map<TValue> _parent;
-            private readonly int _version;
-            private int _index;
+            readonly Int32Map<TValue> _parent;
+            readonly int _version;
+            int _index;
 
             public void Reset() {
                 throw new NotImplementedException();
             }
 
-            object IEnumerator.Current => Current;
+            object IEnumerator.Current {
+                get { return Current; }
+            }
 
             public KeyValuePair<int, TValue> Current { get; set; }
 

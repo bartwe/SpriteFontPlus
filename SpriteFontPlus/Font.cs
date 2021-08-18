@@ -2,12 +2,12 @@
 using System.Runtime.InteropServices;
 
 namespace SpriteFontPlus {
-    internal sealed class Font : IDisposable {
-        private readonly Int32Map<int> _kernings = new();
+    sealed class Font : IDisposable {
+        readonly Int32Map<int> _kernings = new();
 
-        private float _ascentBase, _descentBase, _lineHeightBase;
+        float _ascentBase, _descentBase, _lineHeightBase;
 
-        private IntPtr _font;
+        IntPtr _font;
 
         public float Ascent { get; private set; }
         public float Descent { get; private set; }
@@ -73,7 +73,7 @@ namespace SpriteFontPlus {
             return font;
         }
 
-        private static class NativeMethods {
+        static class NativeMethods {
 #if !CONSOLE
             [DllImport("SpriteFontPlus.Native", EntryPoint = "FontInfoAlloc", CallingConvention = CallingConvention.Cdecl)]
 #endif

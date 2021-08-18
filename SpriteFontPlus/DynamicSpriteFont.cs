@@ -6,28 +6,30 @@ using System.Text;
 
 namespace SpriteFontPlus {
     public sealed class DynamicSpriteFont : IDisposable {
-        private readonly FontSystem _fontSystem;
+        readonly FontSystem _fontSystem;
 
-        private DynamicSpriteFont(byte[] ttf, int textureWidth, int textureHeight, int blur, int stroke) {
+        DynamicSpriteFont(byte[] ttf, int textureWidth, int textureHeight, int blur, int stroke) {
             _fontSystem = new(textureWidth, textureHeight, blur, stroke);
             _fontSystem.AddFontMem(ttf);
         }
 
-        public IEnumerable<FontTexture> Textures => new TextureEnumerator(_fontSystem);
+        public IEnumerable<FontTexture> Textures {
+            get { return new TextureEnumerator(_fontSystem); }
+        }
 
         public float Spacing {
-            get => _fontSystem.Spacing;
-            set => _fontSystem.Spacing = value;
+            get { return _fontSystem.Spacing; }
+            set { _fontSystem.Spacing = value; }
         }
 
         public bool UseKernings {
-            get => _fontSystem.UseKernings;
-            set => _fontSystem.UseKernings = value;
+            get { return _fontSystem.UseKernings; }
+            set { _fontSystem.UseKernings = value; }
         }
 
         public int? DefaultCharacter {
-            get => _fontSystem.DefaultCharacter;
-            set => _fontSystem.DefaultCharacter = value;
+            get { return _fontSystem.DefaultCharacter; }
+            set { _fontSystem.DefaultCharacter = value; }
         }
 
         public void Dispose() {
@@ -35,8 +37,8 @@ namespace SpriteFontPlus {
         }
 
         public event EventHandler CurrentAtlasFull {
-            add => _fontSystem.CurrentAtlasFull += value;
-            remove => _fontSystem.CurrentAtlasFull -= value;
+            add { _fontSystem.CurrentAtlasFull += value; }
+            remove { _fontSystem.CurrentAtlasFull -= value; }
         }
 
         public float DrawString(SpriteBatch batch, StringBuilder text, Vector2 pos, Color color, int fontSize) {
@@ -107,7 +109,7 @@ namespace SpriteFontPlus {
         }
 
         internal struct TextureEnumerator : IEnumerable<FontTexture> {
-            private readonly FontSystem _font;
+            readonly FontSystem _font;
 
             public TextureEnumerator(FontSystem font) {
                 _font = font;

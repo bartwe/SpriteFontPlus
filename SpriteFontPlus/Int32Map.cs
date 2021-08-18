@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace SpriteFontPlus {
-    public class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
+    public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
         private int[]? _buckets;
         private Entry[]? _entries;
         private int _count;

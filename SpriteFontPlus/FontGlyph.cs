@@ -1,5 +1,5 @@
 ﻿namespace SpriteFontPlus {
-    internal class FontGlyph {
+    internal sealed class FontGlyph {
         public Font Font;
         public FontAtlas? Atlas;
         public int Index;

@@ -3,7 +3,7 @@
 using System;
 
 namespace SpriteFontPlus {
-    public class FontTexture {
+    public sealed class FontTexture {
         public int Width;
         public int Height;
 

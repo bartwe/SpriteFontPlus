@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace SpriteFontPlus {
-    internal class Font : IDisposable {
+    internal sealed class Font : IDisposable {
         private readonly Int32Map<int> _kernings = new();
 
         private float _ascentBase, _descentBase, _lineHeightBase;

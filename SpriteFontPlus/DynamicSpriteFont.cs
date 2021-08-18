@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 
 namespace SpriteFontPlus {
-    public class DynamicSpriteFont : IDisposable {
+    public sealed class DynamicSpriteFont : IDisposable {
         private readonly FontSystem _fontSystem;
 
         private DynamicSpriteFont(byte[] ttf, int textureWidth, int textureHeight, int blur, int stroke) {

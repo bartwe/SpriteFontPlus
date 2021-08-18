@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SpriteFontPlus {
-    internal unsafe class FontSystem : IDisposable {
+    internal unsafe sealed class FontSystem : IDisposable {
         private readonly Int32Map<GlyphCollection> _glyphs = new();
 
         private readonly List<Font> _fonts = new();
@@ -605,7 +605,7 @@ namespace SpriteFontPlus {
             return missingCharacterSets.Count != 0;
         }
 
-        private class GlyphCollection {
+        sealed class GlyphCollection {
             internal readonly Int32Map<FontGlyph?> Glyphs = new();
         }
     }

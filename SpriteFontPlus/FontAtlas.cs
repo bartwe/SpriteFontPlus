@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace SpriteFontPlus {
-    internal unsafe class FontAtlas {
+    internal unsafe sealed class FontAtlas {
         private byte[]? _byteBuffer;
         private Color[]? _colorBuffer;
 

@@ -1,0 +1,8 @@
+#!/bin/bash
+g++ -m64 -std=c++11 -c -fPIC -O2 LinuxSpriteFontPlusNative.cpp -o LinuxSpriteFontPlusNative.o
+g++ -m64 -O2 LinuxSpriteFontPlusNative.o -o libSpriteFontPlusNative.dylib -shared
+rm LinuxSpriteFontPlusNative.o
+if [ ! -d ./x64/MacOSX ] ; then
+    mkdir -p ./x64/MacOSX
+fi
+mv ./libSpriteFontPlusNative.dylib ./x64/MacOSX/libSpriteFontPlusNative.dylib

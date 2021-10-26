@@ -52,7 +52,7 @@ namespace SpriteFontPlus {
             return result;
         }
 
-        public static unsafe Font FromMemory(byte[] data) {
+        public static unsafe Font FromMemory(ReadOnlySpan<byte> data) {
             var font = new Font();
             fixed (byte* p = data) {
                 font._font = NativeMethods.FontInfoAlloc(p, data.Length);

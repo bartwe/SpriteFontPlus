@@ -8,13 +8,8 @@ namespace SpriteFontPlus {
     public sealed class DynamicSpriteFont : IDisposable {
         readonly FontSystem _fontSystem;
 
-        DynamicSpriteFont(byte[] ttf, int textureWidth, int textureHeight, int blur, int stroke) {
-            _fontSystem = new(textureWidth, textureHeight, blur, stroke);
-            _fontSystem.AddFontMem(ttf);
-        }
-
-        public IEnumerable<FontTexture> Textures {
-            get { return new TextureEnumerator(_fontSystem); }
+        public DynamicSpriteFont(ISpriteService spriteService) {
+            _fontSystem = new(spriteService);
         }
 
         public float Spacing {
@@ -36,35 +31,12 @@ namespace SpriteFontPlus {
             _fontSystem?.Dispose();
         }
 
-        public event EventHandler CurrentAtlasFull {
-            add { _fontSystem.CurrentAtlasFull += value; }
-            remove { _fontSystem.CurrentAtlasFull -= value; }
+        public void DrawString(List<GlyphDraw> batch, ReadOnlySpan<char> text, Vector2 scale, int fontSize) {
+            _fontSystem.DrawText(batch, text, scale.X, scale.Y, fontSize);
         }
 
-        public float DrawString(SpriteBatch batch, StringBuilder text, Vector2 pos, Color color, int fontSize) {
-            return DrawString(batch, text, pos, 0f, color, Vector2.One, fontSize);
-        }
-
-        public float DrawString(SpriteBatch batch, StringBuilder text, Vector2 pos, float depth, Color color, Vector2 scale, int fontSize) {
-            var result = _fontSystem.DrawText(batch, pos.X, pos.Y, text, depth, color, scale.X, scale.Y, fontSize);
-
-            return result;
-        }
-
-        public float DrawString(SpriteBatch batch, string text, Vector2 pos, Color color, int fontSize) {
-            return DrawString(batch, text, pos, 0f, color, Vector2.One, fontSize);
-        }
-
-        public float DrawString(SpriteBatch batch, string text, Vector2 pos, float depth, Color color, Vector2 scale, int fontSize) {
-            return _fontSystem.DrawText(batch, pos.X, pos.Y, text, depth, color, scale.X, scale.Y, fontSize);
-        }
-
-        public void AddTtf(byte[] ttf) {
+        public void AddTtf(ReadOnlySpan<byte> ttf) {
             _fontSystem.AddFontMem(ttf);
-        }
-
-        public void AddTtf(Stream ttfStream) {
-            AddTtf(ttfStream.ToByteArray());
         }
 
         public Vector2 MeasureString(string text, int fontSize) {
@@ -74,7 +46,7 @@ namespace SpriteFontPlus {
             return new(bounds.X2, bounds.Y2);
         }
 
-        public Vector2 MeasureString(StringBuilder text, int fontSize) {
+        public Vector2 MeasureString(ReadOnlySpan<char> text, int fontSize) {
             var bounds = new Bounds();
             _fontSystem.TextBounds(0, 0, text, ref bounds, fontSize);
 
@@ -90,40 +62,6 @@ namespace SpriteFontPlus {
             _fontSystem.TextBounds(position.X, position.Y, text, ref bounds, fontSize);
 
             return new((int)bounds.X, (int)bounds.Y, (int)(bounds.X2 - bounds.X), (int)(bounds.Y2 - bounds.Y));
-        }
-
-        public void Reset(int width, int height) {
-            _fontSystem.Reset(width, height);
-        }
-
-        public void Reset() {
-            _fontSystem.Reset();
-        }
-
-        public static DynamicSpriteFont FromTtf(byte[] ttf, int textureWidth = 1024, int textureHeight = 1024, int blur = 0, int stroke = 0) {
-            return new(ttf, textureWidth, textureHeight, blur, stroke);
-        }
-
-        public static DynamicSpriteFont FromTtf(Stream ttfStream, int textureWidth = 1024, int textureHeight = 1024, int blur = 0, int stroke = 0) {
-            return FromTtf(ttfStream.ToByteArray(), textureWidth, textureHeight, blur, stroke);
-        }
-
-        internal struct TextureEnumerator : IEnumerable<FontTexture> {
-            readonly FontSystem _font;
-
-            public TextureEnumerator(FontSystem font) {
-                _font = font;
-            }
-
-            public IEnumerator<FontTexture> GetEnumerator() {
-                foreach (var atlas in _font.Atlases) {
-                    yield return atlas.Texture!;
-                }
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() {
-                return GetEnumerator();
-            }
         }
     }
 }

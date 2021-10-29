@@ -93,21 +93,20 @@ namespace SpriteFontPlus {
                 }
 
                 var glyph = GetGlyph(collection, codepoint);
-                if (glyph == null) {
-                    continue;
+                if (glyph != null) {
+                    if (glyph.GlyphSprite != null) {
+                        GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, &q);
+
+                        q.X0 = (int)(q.X0 * scaleX);
+                        q.X1 = (int)(q.X1 * scaleX);
+                        q.Y0 = (int)(q.Y0 * scaleY);
+                        q.Y1 = (int)(q.Y1 * scaleY);
+
+                        var destRect = new Rectangle((int)(q.X0), (int)(q.Y0), (int)(q.X1 - q.X0), (int)(q.Y1 - q.Y0));
+
+                        batch.Add(new(destRect, glyph.GlyphSprite!, i));
+                    }
                 }
-
-                GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, &q);
-
-                q.X0 = (int)(q.X0 * scaleX);
-                q.X1 = (int)(q.X1 * scaleX);
-                q.Y0 = (int)(q.Y0 * scaleY);
-                q.Y1 = (int)(q.Y1 * scaleY);
-
-                var destRect = new Rectangle((int)(q.X0), (int)(q.Y0), (int)(q.X1 - q.X0), (int)(q.Y1 - q.Y0));
-
-                batch.Add(new(destRect, glyph.GlyphSprite!, i));
-
                 prevGlyph = glyph;
             }
         }
@@ -350,6 +349,9 @@ namespace SpriteFontPlus {
             if (glyph == null) {
                 return null;
             }
+
+            if ((glyph.Width == 0) || (glyph.Height == 0))
+                return glyph;
 
             if (glyph.GlyphSprite != null) {
                 return glyph;

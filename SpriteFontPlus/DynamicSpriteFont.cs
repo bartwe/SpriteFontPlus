@@ -39,13 +39,6 @@ namespace SpriteFontPlus {
             _fontSystem.AddFontMem(ttf);
         }
 
-        public Vector2 MeasureString(string text, int fontSize) {
-            var bounds = new Bounds();
-            _fontSystem.TextBounds(0, 0, text, ref bounds, fontSize);
-
-            return new(bounds.X2, bounds.Y2);
-        }
-
         public Vector2 MeasureString(ReadOnlySpan<char> text, int fontSize) {
             var bounds = new Bounds();
             _fontSystem.TextBounds(0, 0, text, ref bounds, fontSize);
@@ -53,11 +46,11 @@ namespace SpriteFontPlus {
             return new(bounds.X2, bounds.Y2);
         }
 
-        public bool TryGetMissingCharactersInString(string text, List<string> missingCharacterSets, bool includeWhitespace) {
+        public bool TryGetMissingCharactersInString(ReadOnlySpan<char> text, List<string> missingCharacterSets, bool includeWhitespace) {
             return _fontSystem.TryGetMissingCharactersInString(text, missingCharacterSets, includeWhitespace);
         }
 
-        public Rectangle GetTextBounds(Vector2 position, string text, int fontSize) {
+        public Rectangle GetTextBounds(Vector2 position, ReadOnlySpan<char> text, int fontSize) {
             var bounds = new Bounds();
             _fontSystem.TextBounds(position.X, position.Y, text, ref bounds, fontSize);
 

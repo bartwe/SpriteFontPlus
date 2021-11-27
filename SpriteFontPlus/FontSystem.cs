@@ -94,8 +94,8 @@ namespace SpriteFontPlus {
 
                 var glyph = GetGlyph(collection, codepoint);
                 if (glyph != null) {
+                    GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, &q);
                     if (glyph.GlyphSprite != null) {
-                        GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, &q);
 
                         q.X0 = (int)(q.X0 * scaleX);
                         q.X1 = (int)(q.X1 * scaleX);

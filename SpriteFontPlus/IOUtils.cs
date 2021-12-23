@@ -1,22 +1,22 @@
 ﻿using System.IO;
 
-namespace SpriteFontPlus {
-    static class IOUtils {
-        public static byte[] ToByteArray(this Stream stream) {
-            byte[] bytes;
+namespace SpriteFontPlus;
 
-            // Rewind stream if it is at end
-            if (stream.CanSeek && (stream.Length == stream.Position)) {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
+static class IOUtils {
+    public static byte[] ToByteArray(this Stream stream) {
+        byte[] bytes;
 
-            // Copy it's data to memory
-            using (var ms = new MemoryStream()) {
-                stream.CopyTo(ms);
-                bytes = ms.ToArray();
-            }
-
-            return bytes;
+        // Rewind stream if it is at end
+        if (stream.CanSeek && (stream.Length == stream.Position)) {
+            _= stream.Seek(0, SeekOrigin.Begin);
         }
+
+        // Copy it's data to memory
+        using (var ms = new MemoryStream()) {
+            stream.CopyTo(ms);
+            bytes = ms.ToArray();
+        }
+
+        return bytes;
     }
 }

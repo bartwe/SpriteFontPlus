@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SpriteFontPlus {
-    sealed class ThrowHelper {
-        public static void KeyNotFoundException() {
-            throw new KeyNotFoundException();
-        }
+namespace SpriteFontPlus;
 
-        public static void ArgumentOutOfRangeException() {
-            throw new ArgumentOutOfRangeException();
-        }
+sealed class ThrowHelper {
+    public static void KeyNotFoundException() {
+        throw new KeyNotFoundException();
+    }
 
-        public static void InvalidOperationException() {
-            throw new InvalidOperationException();
-        }
+    public static void ArgumentOutOfRangeException() {
+        throw new ArgumentOutOfRangeException();
+    }
 
-        public static void ArgumentException() {
-            throw new ArgumentException();
-        }
+    public static void InvalidOperationException() {
+        throw new InvalidOperationException();
+    }
+
+    public static void ArgumentException() {
+        throw new ArgumentException();
     }
 }

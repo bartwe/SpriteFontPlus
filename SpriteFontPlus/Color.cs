@@ -1,7 +1,7 @@
 // unset
 
-namespace SpriteFontPlus {
-    public struct Color {
-        public uint PackedValue;
-    }
+namespace SpriteFontPlus;
+
+public struct Color {
+    public uint PackedValue;
 }

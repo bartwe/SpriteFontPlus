@@ -15,21 +15,29 @@ BW_EXTERN_C
 
 BW_DECLSPEC void* BW_CDECL FontInfoAlloc(void* data, int dataLength) {
 	stbtt_fontinfo* info = (stbtt_fontinfo*)malloc(sizeof(stbtt_fontinfo));
-	info->data = (unsigned char*)malloc(dataLength);
-	memcpy(info->data, data, dataLength);
+	if (info == nullptr)
+		return nullptr;
+	info->fontdata = (unsigned char*)malloc(dataLength);
+	if (info->fontdata == nullptr)
+		return nullptr;
+	info->fontdatastart = info->fontdata;
+	info->fontdataend = info->fontdata + dataLength;
+	memcpy(info->fontdata, data, dataLength);
 	return info;
 }
 
 BW_DECLSPEC void BW_CDECL FontInfoRelease(void* font) {
 	stbtt_fontinfo* info = (stbtt_fontinfo*)font;
-	free(info->data);
+	free(info->fontdata);
 	free(info);
 }
 
 BW_DECLSPEC int BW_CDECL InitFont(void* font, int offset) {
 	stbtt_fontinfo* info = (stbtt_fontinfo*)font;
-	unsigned char* data = info->data;
-	return stbtt_InitFont(info, data, offset);
+	unsigned char* fontdata = info->fontdata;
+	unsigned char* fontdatastart = info->fontdatastart;
+	unsigned char* fontdataend = info->fontdataend;
+	return stbtt_InitFont(info, fontdata, fontdatastart, fontdataend, offset);
 }
 
 BW_DECLSPEC void BW_CDECL GetFontVMetrics(void* font, int* ascent, int* descent, int* linegap) {

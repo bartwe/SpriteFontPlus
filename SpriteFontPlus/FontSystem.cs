@@ -14,7 +14,7 @@ sealed unsafe class FontSystem : IDisposable {
     public bool UseKernings = true;
 
     public int? DefaultCharacter = ' ';
-    ISpriteService _spriteService;
+    readonly ISpriteService _spriteService;
 
     public FontSystem(ISpriteService spriteService) {
         _spriteService = spriteService;
@@ -267,7 +267,7 @@ sealed unsafe class FontSystem : IDisposable {
         bounds.Y2 = maxy;
     }
 
-    bool StringBuilderIsSurrogatePair(ReadOnlySpan<char> chars, int index) {
+    static bool StringBuilderIsSurrogatePair(ReadOnlySpan<char> chars, int index) {
         if (chars == null) {
             throw new ArgumentNullException(nameof(chars));
         }
@@ -280,7 +280,7 @@ sealed unsafe class FontSystem : IDisposable {
         return false;
     }
 
-    int StringBuilderConvertToUtf32(ReadOnlySpan<char> chars, int index) {
+    static int StringBuilderConvertToUtf32(ReadOnlySpan<char> chars, int index) {
         if (chars == null) {
             throw new ArgumentNullException(nameof(chars));
         }

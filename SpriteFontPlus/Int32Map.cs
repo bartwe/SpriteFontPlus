@@ -23,9 +23,7 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
         }
     }
 
-    public int Count {
-        get { return _count - _freeCount; }
-    }
+    public int Count => _count - _freeCount;
 
     public TValue this[int key] {
         get {
@@ -44,7 +42,7 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
                 return default!;
             }
         }
-        set { Insert(key, value, false); }
+        set => Insert(key, value, false);
     }
 
     IEnumerator<KeyValuePair<int, TValue>> IEnumerable<KeyValuePair<int, TValue>>.GetEnumerator() {
@@ -249,9 +247,7 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
             throw new NotImplementedException();
         }
 
-        object IEnumerator.Current {
-            get { return Current; }
-        }
+        object IEnumerator.Current => Current;
 
         public KeyValuePair<int, TValue> Current { get; set; }
 

@@ -14,18 +14,18 @@ public sealed class DynamicSpriteFont : IDisposable {
     }
 
     public float Spacing {
-        get { return _fontSystem.Spacing; }
-        set { _fontSystem.Spacing = value; }
+        get => _fontSystem.Spacing;
+        set => _fontSystem.Spacing = value;
     }
 
     public bool UseKernings {
-        get { return _fontSystem.UseKernings; }
-        set { _fontSystem.UseKernings = value; }
+        get => _fontSystem.UseKernings;
+        set => _fontSystem.UseKernings = value;
     }
 
     public int? DefaultCharacter {
-        get { return _fontSystem.DefaultCharacter; }
-        set { _fontSystem.DefaultCharacter = value; }
+        get => _fontSystem.DefaultCharacter;
+        set => _fontSystem.DefaultCharacter = value;
     }
 
     public void Dispose() {

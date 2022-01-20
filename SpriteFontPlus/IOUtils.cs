@@ -8,7 +8,7 @@ static class IOUtils {
 
         // Rewind stream if it is at end
         if (stream.CanSeek && (stream.Length == stream.Position)) {
-            _= stream.Seek(0, SeekOrigin.Begin);
+            _ = stream.Seek(0, SeekOrigin.Begin);
         }
 
         // Copy it's data to memory

@@ -315,13 +315,13 @@ sealed unsafe class FontSystem : IDisposable {
     }
 
     FontGlyph? GetGlyphWithoutBitmap(GlyphCollection collection, int codepoint) {
-        if (collection.Glyphs.TryGetValue(codepoint, out var glyph)) {
+        if (collection._glyphs.TryGetValue(codepoint, out var glyph)) {
             return glyph;
         }
 
         var g = GetCodepointIndex(codepoint, out var font);
         if (g == 0) {
-            collection.Glyphs[codepoint] = null;
+            collection._glyphs[codepoint] = null;
             return null;
         }
 
@@ -333,7 +333,7 @@ sealed unsafe class FontSystem : IDisposable {
 
         glyph = new(font, g, gw, gh, (int)(font.Scale * advance * 10.0f), x0, y0);
 
-        collection.Glyphs[codepoint] = glyph;
+        collection._glyphs[codepoint] = glyph;
 
         return glyph;
     }
@@ -431,6 +431,6 @@ sealed unsafe class FontSystem : IDisposable {
     }
 
     sealed class GlyphCollection {
-        internal readonly Int32Map<FontGlyph?> Glyphs = new();
+        internal readonly Int32Map<FontGlyph?> _glyphs = new();
     }
 }

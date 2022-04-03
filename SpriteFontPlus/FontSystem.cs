@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SpriteFontPlus;
 
@@ -96,7 +95,6 @@ sealed unsafe class FontSystem : IDisposable {
             if (glyph != null) {
                 GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, &q);
                 if (glyph.GlyphSprite != null) {
-
                     q.X0 = (int)(q.X0 * scaleX);
                     q.X1 = (int)(q.X1 * scaleX);
                     q.Y0 = (int)(q.Y0 * scaleY);

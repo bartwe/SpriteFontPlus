@@ -1,7 +1,5 @@
 ﻿namespace SpriteFontPlus;
 
-public abstract class GlyphSprite { }
-
 public struct GlyphDraw {
     public Rectangle DestRect;
     public GlyphSprite Sprite;

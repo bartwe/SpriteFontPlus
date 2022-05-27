@@ -24,16 +24,19 @@
 #include <cstring>
 #include <cstdint>
 
-template <class T> const T& max(const T& a, const T& b) {
-        return (a < b) ? b : a;
+template <class T>
+const T& max(const T& a, const T& b) {
+    return (a < b) ? b : a;
 }
 
-template <class T> const T& min(const T& a, const T& b) {
-        return (a > b) ? b : a;
+template <class T>
+const T& min(const T& a, const T& b) {
+    return (a > b) ? b : a;
 }
 
-template <class T> const T abs(const T& a) {
-        return (a < 0) ? -a : a;
+template <class T>
+const T abs(const T& a) {
+    return (a < 0) ? -a : a;
 }
 
 #endif //Shared_hpp

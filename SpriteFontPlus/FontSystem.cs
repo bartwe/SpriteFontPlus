@@ -33,6 +33,16 @@ sealed unsafe class FontSystem : IDisposable {
         var font = Font.FromMemory(data);
         font.Recalculate(_fontSize);
         _fonts.Add(font);
+
+        // clear previously unsuccessfully resolved glyphs after loading additional fonts
+        foreach (var gc in _glyphs) {
+            var oldCache = gc.Value._glyphs;
+            var newCache = new Int32Map<FontGlyph?>();
+            foreach (var entry in oldCache)
+                if (entry.Value != null)
+                    newCache[entry.Key] = entry.Value;
+            gc.Value._glyphs = newCache;
+        }
     }
 
     GlyphCollection GetGlyphsCollection(int size) {
@@ -429,6 +439,6 @@ sealed unsafe class FontSystem : IDisposable {
     }
 
     sealed class GlyphCollection {
-        internal readonly Int32Map<FontGlyph?> _glyphs = new();
+        internal Int32Map<FontGlyph?> _glyphs = new();
     }
 }

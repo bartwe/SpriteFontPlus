@@ -70,7 +70,7 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
         _freeList = -1;
         _count = 0;
         _freeCount = 0;
-        _version++;
+        unchecked { _version++; }
     }
 
     public bool ContainsKey(int key) {
@@ -119,7 +119,7 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
                         ThrowHelper.ArgumentException();
                     }
                     entries[index2].Value = value;
-                    _version++;
+                    unchecked { _version++; }
                     return;
                 }
                 ++num2;
@@ -145,7 +145,7 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
             entries[index3].Key = key;
             entries[index3].Value = value;
             buckets[index1] = index3;
-            _version++;
+            unchecked { _version++; }
             if (num2 <= 100) {
                 return;
             }
@@ -199,7 +199,7 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
                         entries[index3].Value = default!;
                         _freeList = index3;
                         _freeCount++;
-                        _version++;
+                        unchecked { _version++; }
                         return true;
                     }
                     index2 = index3;

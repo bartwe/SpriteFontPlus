@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace SpriteFontPlus;
 
@@ -29,29 +30,19 @@ public sealed class DynamicSpriteFont : IDisposable {
         _fontSystem?.Dispose();
     }
 
-    public void DrawString(List<GlyphDraw> batch, ReadOnlySpan<char> text, Vector2 scale, int fontSize) {
-        _fontSystem.DrawText(batch, text, scale.X, scale.Y, fontSize);
+    public void DrawString(List<GlyphDraw> batch, ReadOnlySpan<char> text, Vector2 scale, int fontSize, out int width, out int height) {
+        _fontSystem.DrawText(batch, text, scale.X, scale.Y, fontSize, out width, out height);
     }
 
     public void AddTtf(ReadOnlySpan<byte> ttf) {
         _fontSystem.AddFontMem(ttf);
     }
 
-    public Vector2 MeasureString(ReadOnlySpan<char> text, int fontSize) {
-        var bounds = new Bounds();
-        _fontSystem.TextBounds(0, 0, text, ref bounds, fontSize);
-
-        return new(bounds.X2, bounds.Y2);
+    public void MeasureString(ReadOnlySpan<char> text, Vector2 scale, int fontSize, out int width, out int height) {
+        _fontSystem.MeasureText(text, scale.X, scale.Y, fontSize, out width, out height);
     }
 
     public bool TryGetMissingCharactersInString(ReadOnlySpan<char> text, List<string> missingCharacterSets, bool includeWhitespace) {
         return _fontSystem.TryGetMissingCharactersInString(text, missingCharacterSets, includeWhitespace);
-    }
-
-    public Rectangle GetTextBounds(Vector2 position, ReadOnlySpan<char> text, int fontSize) {
-        var bounds = new Bounds();
-        _fontSystem.TextBounds(position.X, position.Y, text, ref bounds, fontSize);
-
-        return new((int)bounds.X, (int)bounds.Y, (int)(bounds.X2 - bounds.X), (int)(bounds.Y2 - bounds.Y));
     }
 }

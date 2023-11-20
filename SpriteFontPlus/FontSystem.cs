@@ -55,9 +55,12 @@ sealed unsafe class FontSystem : IDisposable {
         return result;
     }
 
-    public void DrawText(List<GlyphDraw> batch, ReadOnlySpan<char> chars, float scaleX, float scaleY, int fontSize) {
-        if (chars.Length == 0)
+    public void DrawText(List<GlyphDraw> batch, ReadOnlySpan<char> chars, float scaleX, float scaleY, int fontSize, out int width, out int height) {
+        width = 0;
+        if (chars.Length == 0) {
+            height = 0;
             return;
+        }
 
         if (fontSize != _fontSize) {
             _fontSize = fontSize;
@@ -83,7 +86,79 @@ sealed unsafe class FontSystem : IDisposable {
             break;
         }
 
-        var q = new FontGlyphSquad();
+        FontGlyphSquad q;
+
+        var originX = 0.0f;
+        var originY = 0.0f;
+
+        originY += ascent;
+
+        var lineCount = 1;
+
+        FontGlyph? prevGlyph = null;
+        for (var i = 0; i < chars.Length; i += StringBuilderIsSurrogatePair(chars, i) ? 2 : 1) {
+            var codepoint = StringBuilderConvertToUtf32(chars, i);
+
+            if (codepoint == '\n') {
+                originX = 0.0f;
+                originY += lineHeight;
+                lineCount++;
+                prevGlyph = null;
+                continue;
+            }
+
+            var glyph = GetGlyph(collection, codepoint);
+            if (glyph != null) {
+                GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, out q);
+                var intOriginX = (int)(originX * scaleX);
+                if (intOriginX > width)
+                    width = intOriginX;
+                if (glyph.GlyphSprite != null) {
+                    q.X0 = (int)(q.X0 * scaleX);
+                    q.X1 = (int)(q.X1 * scaleX);
+                    q.Y0 = (int)(q.Y0 * scaleY);
+                    q.Y1 = (int)(q.Y1 * scaleY);
+
+                    var destRect = new Rectangle((int)q.X0, (int)q.Y0, (int)(q.X1 - q.X0), (int)(q.Y1 - q.Y0));
+
+                    batch.Add(new(destRect, glyph.GlyphSprite!, i));
+                }
+            }
+            prevGlyph = glyph;
+        }
+        height = (int)((lineCount * lineHeight) * scaleY);
+    }
+
+    public void MeasureText(ReadOnlySpan<char> chars, float scaleX, float scaleY, int fontSize, out int width, out int height) {
+        width = 0;
+        if (chars.Length == 0) {
+            height = 0;
+            return;
+        }
+
+        if (fontSize != _fontSize) {
+            _fontSize = fontSize;
+            foreach (var f in _fonts) {
+                f.Recalculate(_fontSize);
+            }
+        }
+
+        var collection = GetGlyphsCollection(_fontSize);
+
+        // Determine ascent and lineHeight from first character
+        float ascent = 0, lineHeight = 0;
+        for (var i = 0; i < chars.Length; i += StringBuilderIsSurrogatePair(chars, i) ? 2 : 1) {
+            var codepoint = StringBuilderConvertToUtf32(chars, i);
+
+            var glyph = GetGlyph(collection, codepoint);
+            if (glyph == null) {
+                continue;
+            }
+
+            ascent = glyph.Font.Ascent;
+            lineHeight = glyph.Font.LineHeight;
+            break;
+        }
 
         var originX = 0.0f;
         var originY = 0.0f;
@@ -103,176 +178,14 @@ sealed unsafe class FontSystem : IDisposable {
 
             var glyph = GetGlyph(collection, codepoint);
             if (glyph != null) {
-                GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, &q);
-                if (glyph.GlyphSprite != null) {
-                    q.X0 = (int)(q.X0 * scaleX);
-                    q.X1 = (int)(q.X1 * scaleX);
-                    q.Y0 = (int)(q.Y0 * scaleY);
-                    q.Y1 = (int)(q.Y1 * scaleY);
-
-                    var destRect = new Rectangle((int)q.X0, (int)q.Y0, (int)(q.X1 - q.X0), (int)(q.Y1 - q.Y0));
-
-                    batch.Add(new(destRect, glyph.GlyphSprite!, i));
-                }
+                GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, out _);
+                var intOriginX = (int)(originX * scaleX);
+                if (intOriginX > width)
+                    width = intOriginX;
             }
             prevGlyph = glyph;
         }
-    }
-
-    public void TextBounds(float x, float y, string str, ref Bounds bounds, int fontSize) {
-        if (string.IsNullOrEmpty(str)) {
-            return;
-        }
-
-        if (fontSize != _fontSize) {
-            _fontSize = fontSize;
-            foreach (var f in _fonts) {
-                f.Recalculate(_fontSize);
-            }
-        }
-
-        var collection = GetGlyphsCollection(_fontSize);
-
-        // Determine ascent and lineHeight from first character
-        float ascent = 0, lineHeight = 0;
-        for (var i = 0; i < str.Length; i += char.IsSurrogatePair(str, i) ? 2 : 1) {
-            var codepoint = char.ConvertToUtf32(str, i);
-
-            var glyph = GetGlyph(collection, codepoint);
-            if (glyph == null) {
-                continue;
-            }
-
-            ascent = glyph.Font.Ascent;
-            lineHeight = glyph.Font.LineHeight;
-            break;
-        }
-
-
-        var q = new FontGlyphSquad();
-
-        y += ascent;
-
-        float minx, maxx, miny, maxy;
-        minx = maxx = x;
-        miny = maxy = y;
-        var startx = x;
-        FontGlyph? prevGlyph = null;
-
-        for (var i = 0; i < str.Length; i += char.IsSurrogatePair(str, i) ? 2 : 1) {
-            var codepoint = char.ConvertToUtf32(str, i);
-
-            if (codepoint == '\n') {
-                x = startx;
-                y += lineHeight;
-                prevGlyph = null;
-                continue;
-            }
-
-            var glyph = GetGlyph(collection, codepoint);
-            if (glyph == null) {
-                continue;
-            }
-
-            GetQuad(glyph, prevGlyph, collection, Spacing, ref x, ref y, &q);
-            if (q.X0 < minx) {
-                minx = q.X0;
-            }
-            if (x > maxx) {
-                maxx = x;
-            }
-            if (q.Y0 < miny) {
-                miny = q.Y0;
-            }
-            if (q.Y1 > maxy) {
-                maxy = q.Y1;
-            }
-
-            prevGlyph = glyph;
-        }
-
-        bounds.X = minx;
-        bounds.Y = miny;
-        bounds.X2 = maxx;
-        bounds.Y2 = maxy;
-    }
-
-    public void TextBounds(float x, float y, ReadOnlySpan<char> chars, ref Bounds bounds, int fontSize) {
-        if ((chars == null) || (chars.Length <= 0)) {
-            return;
-        }
-
-        if (fontSize != _fontSize) {
-            _fontSize = fontSize;
-            foreach (var f in _fonts) {
-                f.Recalculate(_fontSize);
-            }
-        }
-
-        var collection = GetGlyphsCollection(_fontSize);
-
-        // Determine ascent and lineHeight from first character
-        float ascent = 0, lineHeight = 0;
-        for (var i = 0; i < chars.Length; i += StringBuilderIsSurrogatePair(chars, i) ? 2 : 1) {
-            var codepoint = StringBuilderConvertToUtf32(chars, i);
-
-            var glyph = GetGlyph(collection, codepoint);
-            if (glyph == null) {
-                continue;
-            }
-
-            ascent = glyph.Font.Ascent;
-            lineHeight = glyph.Font.LineHeight;
-            break;
-        }
-
-
-        var q = new FontGlyphSquad();
-
-        y += ascent;
-
-        float minx, maxx, miny, maxy;
-        minx = maxx = x;
-        miny = maxy = y;
-        var startx = x;
-        FontGlyph? prevGlyph = null;
-
-        for (var i = 0; i < chars.Length; i += StringBuilderIsSurrogatePair(chars, i) ? 2 : 1) {
-            var codepoint = StringBuilderConvertToUtf32(chars, i);
-
-            if (codepoint == '\n') {
-                x = startx;
-                y += lineHeight;
-                prevGlyph = null;
-                continue;
-            }
-
-            var glyph = GetGlyph(collection, codepoint);
-            if (glyph == null) {
-                continue;
-            }
-
-            GetQuad(glyph, prevGlyph, collection, Spacing, ref x, ref y, &q);
-            if (q.X0 < minx) {
-                minx = q.X0;
-            }
-            if (x > maxx) {
-                maxx = x;
-            }
-            if (q.Y0 < miny) {
-                miny = q.Y0;
-            }
-            if (q.Y1 > maxy) {
-                maxy = q.Y1;
-            }
-
-            prevGlyph = glyph;
-        }
-
-        bounds.X = minx;
-        bounds.Y = miny;
-        bounds.X2 = maxx;
-        bounds.Y2 = maxy;
+        height = (int)((originY + lineHeight) * scaleY);
     }
 
     static bool StringBuilderIsSurrogatePair(ReadOnlySpan<char> chars, int index) {
@@ -379,7 +292,7 @@ sealed unsafe class FontSystem : IDisposable {
         return result;
     }
 
-    void GetQuad(FontGlyph glyph, FontGlyph? prevGlyph, GlyphCollection collection, float spacing, ref float x, ref float y, FontGlyphSquad* q) {
+    void GetQuad(FontGlyph glyph, FontGlyph? prevGlyph, GlyphCollection collection, float spacing, ref float x, ref float y, out FontGlyphSquad q) {
         if (prevGlyph != null) {
             float adv = 0;
             if (UseKernings && (glyph.Font == prevGlyph.Font)) {
@@ -394,10 +307,10 @@ sealed unsafe class FontSystem : IDisposable {
 
         rx = x + glyph.XOffset;
         ry = y + glyph.YOffset;
-        q->X0 = rx;
-        q->Y0 = ry;
-        q->X1 = rx + glyph.Width;
-        q->Y1 = ry + glyph.Height;
+        q.X0 = rx;
+        q.Y0 = ry;
+        q.X1 = rx + glyph.Width;
+        q.Y1 = ry + glyph.Height;
         x += (int)((glyph.XAdvance / 10.0f) + 0.5f);
     }
 

@@ -129,6 +129,7 @@ sealed unsafe class FontSystem : IDisposable {
         height = (int)((lineCount * lineHeight) * scaleY);
     }
 
+
     public void MeasureText(ReadOnlySpan<char> chars, float scaleX, float scaleY, int fontSize, out int width, out int height) {
         width = 0;
         if (chars.Length == 0) {
@@ -165,6 +166,8 @@ sealed unsafe class FontSystem : IDisposable {
 
         originY += ascent;
 
+        var lineCount = 1;
+
         FontGlyph? prevGlyph = null;
         for (var i = 0; i < chars.Length; i += StringBuilderIsSurrogatePair(chars, i) ? 2 : 1) {
             var codepoint = StringBuilderConvertToUtf32(chars, i);
@@ -172,6 +175,7 @@ sealed unsafe class FontSystem : IDisposable {
             if (codepoint == '\n') {
                 originX = 0.0f;
                 originY += lineHeight;
+                lineCount++;
                 prevGlyph = null;
                 continue;
             }
@@ -185,7 +189,7 @@ sealed unsafe class FontSystem : IDisposable {
             }
             prevGlyph = glyph;
         }
-        height = (int)((originY + lineHeight) * scaleY);
+        height = (int)((lineCount * lineHeight) * scaleY);
     }
 
     static bool StringBuilderIsSurrogatePair(ReadOnlySpan<char> chars, int index) {

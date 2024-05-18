@@ -10,7 +10,7 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-    <Configurations>DebugLinuxArm32;DebugLinuxX64;DebugWindowsX64</Configurations>
+    <Configurations>DebugLinuxArm32;DebugLinuxX64;DebugWindowsX64;DebugWindowsAOTX64</Configurations>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <Nullable>enable</Nullable>
@@ -36,5 +36,17 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Optimize>true</Optimize>
   </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugWindowsAOTX64|AnyCPU'">
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <Optimize>true</Optimize>
+        <PublishAot>true</PublishAot>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(Configuration)|$(Platform)'=='DebugWindowsAOTX64|AnyCPU'">
+        <RuntimeHostConfigurationOption Include="System.Runtime.InteropServices.EnableCppInterop" Value="true" />
+    </ItemGroup>
 
 </Project>

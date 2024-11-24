@@ -193,9 +193,6 @@ sealed unsafe class FontSystem : IDisposable {
     }
 
     static bool StringBuilderIsSurrogatePair(ReadOnlySpan<char> chars, int index) {
-        if (chars == null) {
-            throw new ArgumentNullException(nameof(chars));
-        }
         if ((index < 0) || (index > chars.Length)) {
             throw new ArgumentOutOfRangeException(nameof(index));
         }
@@ -206,9 +203,6 @@ sealed unsafe class FontSystem : IDisposable {
     }
 
     static int StringBuilderConvertToUtf32(ReadOnlySpan<char> chars, int index) {
-        if (chars == null) {
-            throw new ArgumentNullException(nameof(chars));
-        }
         if ((index < 0) || (index > chars.Length)) {
             throw new ArgumentOutOfRangeException(nameof(index));
         }

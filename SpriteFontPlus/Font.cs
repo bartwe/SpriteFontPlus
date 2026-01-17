@@ -59,6 +59,7 @@ sealed class Font : IDisposable {
         }
 
         if (NativeMethods.InitFont(font._font, 0) == 0) {
+            NativeMethods.FontInfoRelease(font._font);
             throw new("stbtt_InitFont failed");
         }
 

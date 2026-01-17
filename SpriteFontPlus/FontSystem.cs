@@ -110,9 +110,11 @@ sealed unsafe class FontSystem : IDisposable {
             var glyph = GetGlyph(collection, codepoint);
             if (glyph != null) {
                 GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, out q);
-                var intOriginX = (int)(originX * scaleX);
-                if (intOriginX > width)
-                    width = intOriginX;
+                // Track width from the rendered quad, not the pen position.
+                // This covers glyphs with overhang (negative right-side bearing).
+                var scaledRight = (int)(q.X1 * scaleX);
+                if (scaledRight > width)
+                    width = scaledRight;
                 if (glyph.GlyphSprite != null) {
                     q.X0 = (int)(q.X0 * scaleX);
                     q.X1 = (int)(q.X1 * scaleX);
@@ -168,6 +170,7 @@ sealed unsafe class FontSystem : IDisposable {
 
         var lineCount = 1;
 
+        FontGlyphSquad q;
         FontGlyph? prevGlyph = null;
         for (var i = 0; i < chars.Length; i += StringBuilderIsSurrogatePair(chars, i) ? 2 : 1) {
             var codepoint = StringBuilderConvertToUtf32(chars, i);
@@ -182,10 +185,11 @@ sealed unsafe class FontSystem : IDisposable {
 
             var glyph = GetGlyph(collection, codepoint);
             if (glyph != null) {
-                GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, out _);
-                var intOriginX = (int)(originX * scaleX);
-                if (intOriginX > width)
-                    width = intOriginX;
+                GetQuad(glyph, prevGlyph, collection, Spacing, ref originX, ref originY, out q);
+                // Same rule as DrawText: width should match rendered bounds.
+                var scaledRight = (int)(q.X1 * scaleX);
+                if (scaledRight > width)
+                    width = scaledRight;
             }
             prevGlyph = glyph;
         }

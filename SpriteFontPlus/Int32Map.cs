@@ -50,7 +50,7 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
     }
 
     IEnumerator IEnumerable.GetEnumerator() {
-        throw new NotImplementedException();
+        return GetEnumerator();
     }
 
     public void Add(int key, TValue value) {
@@ -262,7 +262,10 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
             if (_version != _parent._version) {
                 ThrowHelper.InvalidOperationException();
             }
-            var entries = _parent._entries!;
+            var entries = _parent._entries;
+            if (entries == null) {
+                return false;
+            }
             for (; (uint)_index < (uint)_parent._count; _index++) {
                 if (entries[_index].HashCode >= 0) {
                     Current = new(entries[_index].Key, entries[_index].Value);

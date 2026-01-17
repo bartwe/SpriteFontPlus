@@ -99,6 +99,9 @@ sealed unsafe class FontSystem : IDisposable {
         for (var i = 0; i < chars.Length; i += StringBuilderIsSurrogatePair(chars, i) ? 2 : 1) {
             var codepoint = StringBuilderConvertToUtf32(chars, i);
 
+            if (codepoint == '\r')
+                continue;
+
             if (codepoint == '\n') {
                 originX = 0.0f;
                 originY += lineHeight;

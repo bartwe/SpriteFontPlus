@@ -244,7 +244,7 @@ public sealed class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>> {
         int _index;
 
         public void Reset() {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         object IEnumerator.Current => Current;

@@ -33,6 +33,11 @@
     <OutDir>.\bin\$(Configuration)\</OutDir>
     <IntDir>.\obj\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup>
+    <CodeAnalysisRuleSet />
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugWindowsX64|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
@@ -67,6 +72,11 @@
       <AssemblyDebug>
       </AssemblyDebug>
     </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <EnablePREfast>false</EnablePREfast>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="StbTrueType.cpp" />
